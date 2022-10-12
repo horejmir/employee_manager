@@ -1,4 +1,4 @@
-package cz.horejsi.employeemanager.config;
+package cz.horejsi.employee_manager.config;
 
 
 import org.springframework.context.annotation.Bean;

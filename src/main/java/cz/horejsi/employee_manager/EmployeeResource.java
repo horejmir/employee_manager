@@ -1,7 +1,7 @@
-package cz.horejsi.employeemanager;
+package cz.horejsi.employee_manager;
 
-import cz.horejsi.employeemanager.model.Employee;
-import cz.horejsi.employeemanager.service.EmployeeService;
+import cz.horejsi.employee_manager.model.Employee;
+import cz.horejsi.employee_manager.service.EmployeeService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;

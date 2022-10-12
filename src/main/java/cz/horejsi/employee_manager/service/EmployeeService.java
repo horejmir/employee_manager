@@ -1,8 +1,8 @@
-package cz.horejsi.employeemanager.service;
+package cz.horejsi.employee_manager.service;
 
-import cz.horejsi.employeemanager.exception.EmployeeNotFoundException;
-import cz.horejsi.employeemanager.model.Employee;
-import cz.horejsi.employeemanager.repository.EmployeeRepository;
+import cz.horejsi.employee_manager.exception.EmployeeNotFoundException;
+import cz.horejsi.employee_manager.model.Employee;
+import cz.horejsi.employee_manager.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

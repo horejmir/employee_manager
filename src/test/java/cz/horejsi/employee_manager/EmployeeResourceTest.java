@@ -1,10 +1,10 @@
-package cz.horejsi.employeemanager;
+package cz.horejsi.employee_manager;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import cz.horejsi.employeemanager.model.Employee;
+import cz.horejsi.employee_manager.model.Employee;
 import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

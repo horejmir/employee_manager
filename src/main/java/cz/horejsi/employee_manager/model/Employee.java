@@ -1,4 +1,4 @@
-package cz.horejsi.employeemanager.model;
+package cz.horejsi.employee_manager.model;
 
 import lombok.*;
 
