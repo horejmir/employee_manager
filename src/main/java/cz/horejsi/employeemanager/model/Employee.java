@@ -1,9 +1,13 @@
 package cz.horejsi.employeemanager.model;
 
+import lombok.*;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 public class Employee implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,19 +19,6 @@ public class Employee implements Serializable {
     private String email;
     private String jobTitle;
     private String imageUrl;
-
-    public Employee() {
-    }
-
-    public Employee(Long id, String name, String surname, String phone, String email, String jobTitle, String imageUrl) {
-        this.id = id;
-        this.name = name;
-        this.surname = surname;
-        this.phone = phone;
-        this.email = email;
-        this.jobTitle = jobTitle;
-        this.imageUrl = imageUrl;
-    }
 
     @Override
     public String toString() {
@@ -42,59 +33,18 @@ public class Employee implements Serializable {
                 '}';
     }
 
-    public Long getId() {
-        return id;
-    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+        Employee employee = (Employee) o;
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getJobTitle() {
-        return jobTitle;
-    }
-
-    public void setJobTitle(String jobTitle) {
-        this.jobTitle = jobTitle;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+        if (!name.equals(employee.name)) return false;
+        if (!surname.equals(employee.surname)) return false;
+        if (!phone.equals(employee.phone)) return false;
+        if (!email.equals(employee.email)) return false;
+        if (!jobTitle.equals(employee.jobTitle)) return false;
+        return imageUrl.equals(employee.imageUrl);
     }
 }
