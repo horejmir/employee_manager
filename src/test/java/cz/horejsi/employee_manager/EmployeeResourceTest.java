@@ -1,156 +1,150 @@
 package cz.horejsi.employee_manager;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.horejsi.employee_manager.model.Employee;
-import org.junit.jupiter.api.*;
-import org.junit.runner.RunWith;
+import cz.horejsi.employee_manager.service.EmployeeService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@RunWith(SpringJUnit4ClassRunner.class)
-@AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
 class EmployeeResourceTest {
 
+    @Mock
+    private EmployeeService employeeService;
+    private Employee employee1;
+    private Employee employee2;
+    private List<Employee> employeeList;
+
+    @InjectMocks
+    private EmployeeResource employeeResource;
+
     @Autowired
-    private MockMvc mvc;
+    private MockMvc mockMvc;
 
-    @Nested
-    @DisplayName("GET-ALL/ADD")
-    class getAllEmployeesTests {
+    @BeforeEach
+    public void setup(){
+        employee1 = new Employee(1L, "Jan", "Novak", "606456789",
+                "jan@novak.cz", "UI developer", "avatar4.png");
+        employee2 = new Employee(2L, "Eva", "Nova", "607454749",
+                "eva@gmail.ccom", "SQL developer", "avatar2.png");
 
-        @Test
-        @DisplayName("GET ALL EMPLOYEES")
-        void getEmployeesList() throws Exception {
-            // given
-            String uri = "/employee/all";
-            // when
-            MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(uri)
-                    .accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
-            int status = mvcResult.getResponse().getStatus();
-            // then
-            assertEquals(200, status);
-            String content = mvcResult.getResponse().getContentAsString();
-            Employee[] employees = mapFromJson(content, Employee[].class);
-            assertTrue(employees.length > 0);
-        }
+        employeeList = new ArrayList<>();
+        employeeList.add(employee1);
+        employeeList.add(employee2);
 
-        @Test
-        @DisplayName("ADD EMPLOYEE")
-        void addEmployee() throws Exception {
-            // given
-            String uri = "/employee/add";
-            Employee employee = new Employee();
-            employee.setName("Jan");
-            employee.setSurname("Kakadus");
-            employee.setEmail("test@gmail.com");
-            employee.setJobTitle("designer");
-            employee.setPhone("723564892");
-            employee.setImageUrl("https://bootdey.com/img/Content/avatar/avatar4.png");
-            // when
-            MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(uri)
-                    .contentType(MediaType.APPLICATION_JSON_VALUE).content(mapToJson(employee))).andReturn();
-            int status = mvcResult.getResponse().getStatus();
-            // then
-            assertEquals(201, status);
-            String contentAdd = mvcResult.getResponse().getContentAsString();
-            Employee employeeAdded = mapFromJson(contentAdd, Employee.class);
-            assertTrue(employeeAdded.equals(employee));
-        }
+        mockMvc = MockMvcBuilders.standaloneSetup(employeeResource).build();
+    }
+    @AfterEach
+    void tearDown() {
+        employee1 = null;
+        employee2 = null;
+        employeeList = null;
+    }
+
+    @Test
+    @DisplayName("CONTROLLER - GET ALL EMPLOYEE")
+    void getMappingOfAllEmployee() throws Exception {
+
+        when(employeeService.findAllEmployees()).thenReturn(employeeList);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/employee/all").
+                        contentType(MediaType.APPLICATION_JSON).content(asJsonString(employee1))).
+                        andExpect(status().isOk()).
+                        andDo(MockMvcResultHandlers.print());
+
+        verify(employeeService).findAllEmployees();
+        verify(employeeService,times(1)).findAllEmployees();
+    }
+
+    @Test
+    @DisplayName("CONTROLLER - GET EMPLOYEE BY ID")
+    void getMappingOfEmployeeById() throws Exception {
+
+        when(employeeService.findEmployeeById(employee1.getId())).thenReturn(employee1);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/employee/find/" + employee1.getId()).
+                        contentType(MediaType.APPLICATION_JSON).
+                        content(asJsonString(employee1))).
+                        andExpect(status().isOk()).
+                        andDo(MockMvcResultHandlers.print());
+
+        verify(employeeService).findEmployeeById(employee1.getId());
+        verify(employeeService,times(1)).findEmployeeById(employee1.getId());
+
+    }
+
+    @Test
+    @DisplayName("CONTROLLER - POST EMPLOYEE")
+    void postMappingOfEmployee() throws Exception {
+
+        when(employeeService.addEmployee(employee1)).thenReturn(employee1);
+
+        mockMvc.perform(post("/employee/add").
+                        contentType(MediaType.APPLICATION_JSON).
+                        content(asJsonString(employee1))).
+                        andExpect(status().isCreated()).
+                        andDo(MockMvcResultHandlers.print());
+
+        verify(employeeService).addEmployee(employee1);
+        verify(employeeService,times(1)).addEmployee(employee1);
+    }
+
+    @Test
+    @DisplayName("CONTROLLER - PUT EMPLOYEE")
+    void putMappingOfEmployee() throws Exception {
+
+        when(employeeService.updateEmployee(employee1)).thenReturn(employee1);
+
+        mockMvc.perform(put("/employee/update").
+                contentType(MediaType.APPLICATION_JSON).
+                content(asJsonString(employee1))).
+                andExpect(status().isOk()).
+                andDo(MockMvcResultHandlers.print());
+
+        verify(employeeService).updateEmployee(employee1);
+        verify(employeeService, times(1)).updateEmployee(employee1);
+
+    }
+
+    @Test
+    @DisplayName("CONTROLLER - DELETE EMPLOYEE")
+    void deleteMappingOfEmployee() throws Exception {
+
+        doNothing().when(employeeService).deleteEmployee(employee1.getId());
+
+        mockMvc.perform(delete("/employee/delete/" + employee1.getId()))
+                        .andExpect(status().isOk()).
+                        andDo(MockMvcResultHandlers.print());
+
+        verify(employeeService).deleteEmployee(employee1.getId());
+        verify(employeeService, times(1)).deleteEmployee(employee1.getId());
     }
 
 
-    @Nested
-    @DisplayName("FIND/UPDATE/DELETE")
-    class AddFindUpdateDeleteTests {
-
-        private Employee employeeInDatabase;
-
-        @BeforeEach
-        void getLastEmployees() throws Exception {
-            String uri = "/employee/all";
-
-            MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(uri)
-                    .accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
-
-            String content = mvcResult.getResponse().getContentAsString();
-            Employee[] employees = mapFromJson(content, Employee[].class);
-            this.employeeInDatabase = employees[employees.length - 1];
-        }
-
-        @Test
-        @DisplayName("FIND EMPLOYEE")
-        void findEmployee() throws Exception {
-            // given
-            Employee employee = this.employeeInDatabase;
-            String uri = "/employee/find/" + employee.getId();
-            // when
-            MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(uri)
-                    .accept(MediaType.APPLICATION_JSON_VALUE)).andReturn();
-            int status = mvcResult.getResponse().getStatus();
-            // then
-            assertEquals(200, status);
-            String contentFind = mvcResult.getResponse().getContentAsString();
-            Employee actual = mapFromJson(contentFind, Employee.class);
-            assertTrue(actual.equals(employee));
-        }
-
-        @Test
-        @DisplayName("UPDATE EMPLOYEE")
-        void updateEmployee() throws Exception {
-            // given
-            Employee employee = this.employeeInDatabase;
-            employee.setName("Adam");
-            String uri = "/employee/update";
-            // when
-            MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put(uri)
-                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .content(mapToJson(employee))).andReturn();
-            int status = mvcResult.getResponse().getStatus();
-            // then
-            assertEquals(200, status);
-            String content = mvcResult.getResponse().getContentAsString();
-            Employee actual = mapFromJson(content, Employee.class);
-            assertTrue(actual.equals(employee));
-        }
-
-        @Test
-        @DisplayName("DELETE EMPLOYEE")
-        void deleteEmployee() throws Exception {
-            //given
-            String uri = "/employee/delete/" + this.employeeInDatabase.getId();
-            // when
-            MvcResult mvcResultDelete = mvc.perform(MockMvcRequestBuilders.delete(uri)).andReturn();
-            int status = mvcResultDelete.getResponse().getStatus();
-            // then
-            assertEquals(200, status);
+    public static String asJsonString(final Object obj){
+        try{
+            return new ObjectMapper().writeValueAsString(obj);
+        }catch (Exception e){
+            throw new RuntimeException(e);
         }
     }
-
-
-    private String mapToJson(Object obj) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(obj);
-    }
-
-    private <T> T mapFromJson(String json, Class<T> clazz)
-            throws JsonParseException, JsonMappingException, IOException {
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(json, clazz);
-    }
-
 }

@@ -73,9 +73,13 @@ class EmployeeServiceTest {
     @Test
     @DisplayName("SERVICE - DELETE EMPLOYEE")
     public void givenIdTODeleteThenShouldDeleteTheEmployee(){
-        //when(employeeService.deleteEmployee(employee1.getId()).thenReturn(employee1);
 
-        //verify(employeeRepository,times(1)).findAll();
+        doNothing().when(employeeRepository).deleteById(employee1.getId());
+
+        employeeService.deleteEmployee(employee1.getId());
+
+        verify(employeeRepository,times(1)).deleteById(employee1.getId());
+
     }
 
     @Test
@@ -85,6 +89,7 @@ class EmployeeServiceTest {
         //stubbing mock to return specific data
         when(employeeRepository.findAll()).thenReturn(employeeList);
         List<Employee> employeeList1 = employeeService.findAllEmployees();
+
         assertEquals(employeeList1,employeeList);
 
         verify(employeeRepository,times(1)).save(employee1);
